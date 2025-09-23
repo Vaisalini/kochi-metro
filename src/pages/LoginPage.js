@@ -121,9 +121,9 @@ const LoginPage = () => {
                 Sign In
               </button>
 
-              <a href="#" className="forgot-password">
+              <button type="button" className="forgot-password" onClick={() => alert('Password reset functionality coming soon!')}>
                 Forgot your password?
-              </a>
+              </button>
             </form>
           </div>
         </div>

@@ -2143,3 +2143,10 @@ select.form-control {
     padding-top: var(--space-32);
   }
 }
+
+/* Train Induction Dashboard Section */
+.induction-dashboard-section {
+  margin-top: var(--space-32);
+  border-top: 2px solid var(--color-border);
+  padding-top: var(--space-32);
+}

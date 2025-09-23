@@ -197,5 +197,31 @@ export const appData = {
       timestamp: "2025-09-14T19:00:00",
       read: true
     }
+  ],
+  // Dashboard data for train induction planner
+  // Ordered by AI ranking: KM-002 (rank 1), KM-004 (rank 2), KM-001 (rank 3), KM-003 (rank 5), KM-005 (rank 25), KM-006 (no rank)
+  depot: {
+    bays: {
+      'A1': { type: 'regular', distance: 85, train: 'KM-002', x: 1, y: 3 }, // AI Rank 1 - Revenue Service
+      'A2': { type: 'regular', distance: 75, train: 'KM-004', x: 2, y: 3 }, // AI Rank 2 - Standby
+      'B1': { type: 'regular', distance: 65, train: 'KM-001', x: 1, y: 2 }, // AI Rank 3 - Revenue Service
+      'B2': { type: 'regular', distance: 55, train: 'KM-003', x: 2, y: 2 }, // AI Rank 5 - Standby
+      'C1': { type: 'maintenance', distance: 45, train: 'KM-005', x: 1, y: 1 }, // AI Rank 25 - IBL Maintenance
+      'C2': { type: 'regular', distance: 35, train: 'KM-006', x: 2, y: 1 }, // No rank - Revenue Service
+      'EXIT': { type: 'exit', distance: 0, train: null, x: 3, y: 2 }
+    },
+    connections: [
+      ['A1', 'A2'], ['A1', 'B1'], ['A2', 'B2'],
+      ['B1', 'B2'], ['B1', 'C1'], ['B2', 'C2'], ['B2', 'EXIT'],
+      ['C1', 'C2'], ['C2', 'EXIT']
+    ]
+  },
+  shuntingOptimization: [
+    { train: 'KM-002', fromBay: 'A1', distance: 85, cost: 1750 }, // AI Rank 1
+    { train: 'KM-004', fromBay: 'A2', distance: 75, cost: 1550 }, // AI Rank 2
+    { train: 'KM-001', fromBay: 'B1', distance: 65, cost: 1350 }, // AI Rank 3
+    { train: 'KM-003', fromBay: 'B2', distance: 55, cost: 1120 }, // AI Rank 5
+    { train: 'KM-005', fromBay: 'C1', distance: 45, cost: 950 },  // AI Rank 25
+    { train: 'KM-006', fromBay: 'C2', distance: 35, cost: 800 }   // No rank
   ]
 };

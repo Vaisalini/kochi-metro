@@ -1,0 +1,351 @@
+/* Train Induction Dashboard Styles */
+.train-induction-dashboard {
+  padding: 2rem;
+  background-color: var(--color-background);
+  min-height: 100vh;
+}
+
+.dashboard-header {
+  margin-bottom: 2rem;
+}
+
+.dashboard-title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-title svg {
+  color: var(--color-teal-500);
+}
+
+.dashboard-subtitle {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  font-style: italic;
+  margin: 0;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.dashboard-card {
+  background-color: var(--color-surface);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-title svg {
+  color: var(--color-teal-500);
+}
+
+/* Depot Visualization */
+.depot-svg {
+  width: 100%;
+  height: 400px;
+  background-color: var(--color-background);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  margin-bottom: 1.5rem;
+}
+
+/* Status Legend */
+.status-legend {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: var(--color-background);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.status-legend h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+}
+
+.legend-color.in-use {
+  background-color: var(--color-teal-600);
+}
+
+.legend-color.standby {
+  background-color: var(--color-orange-500);
+}
+
+.legend-color.maintenance {
+  background-color: var(--color-red-500);
+}
+
+.legend-color.exit {
+  background-color: var(--color-teal-500);
+}
+
+.legend-color.empty {
+  background-color: var(--color-slate-500);
+}
+
+/* Tables */
+.table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.data-table th {
+  background-color: var(--color-background);
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.data-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.data-table tbody tr:hover {
+  background-color: var(--color-background);
+}
+
+/* Metrics */
+.metrics-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.metric-card {
+  background-color: var(--color-background);
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid var(--color-border);
+}
+
+.metric-label {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.metric-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-teal-500);
+}
+
+/* Charts */
+.chart-section {
+  margin-bottom: 2rem;
+}
+
+.chart-title {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.chart-container {
+  background-color: var(--color-background);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+/* Status Section */
+.status-section {
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.bay-info .section-title {
+  margin-bottom: 1rem;
+}
+
+/* Validation Alerts */
+.validation-alerts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.alert {
+  padding: 0.75rem;
+  border-radius: 8px;
+  border-left: 3px solid;
+  font-size: 0.875rem;
+}
+
+.alert-critical {
+  background-color: rgba(255, 84, 89, 0.1);
+  border-left-color: var(--color-red-400);
+  color: var(--color-text);
+}
+
+.alert-info {
+  background-color: rgba(50, 184, 198, 0.1);
+  border-left-color: var(--color-teal-300);
+  color: var(--color-text);
+}
+
+/* Status Badges */
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.status-eligible {
+  background-color: var(--color-teal-700);
+  color: var(--color-white);
+}
+
+.status-ineligible {
+  background-color: var(--color-red-500);
+  color: var(--color-white);
+}
+
+/* Performance Card */
+.performance-card {
+  background-color: var(--color-background);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.performance-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.performance-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.performance-row span:first-child {
+  color: var(--color-text-secondary);
+}
+
+.performance-value {
+  color: var(--color-teal-500);
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .train-induction-dashboard {
+    padding: 1rem;
+  }
+  
+  .dashboard-title {
+    font-size: 1.5rem;
+  }
+  
+  .dashboard-card {
+    padding: 1rem;
+  }
+  
+  .metrics-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .chart-container {
+    padding: 0.5rem;
+  }
+  
+  .data-table {
+    font-size: 0.75rem;
+  }
+  
+  .data-table th,
+  .data-table td {
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-grid {
+    gap: 1rem;
+  }
+  
+  .dashboard-card {
+    padding: 0.75rem;
+  }
+  
+  .chart-container {
+    height: 200px;
+  }
+}

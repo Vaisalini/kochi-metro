@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Header from '../components/layout/Header';
 import TrainCard from '../components/train/TrainCard';
+import TrainInductionDashboard from '../components/dashboard/TrainInductionDashboard';
 import { appData } from '../data/appData';
 
 const DashboardPage = () => {
@@ -133,6 +134,11 @@ const DashboardPage = () => {
             No trains found matching the current filters.
           </div>
         )}
+
+        {/* Train Induction Dashboard */}
+        <section className="induction-dashboard-section">
+          <TrainInductionDashboard />
+        </section>
       </main>
     </div>
   );

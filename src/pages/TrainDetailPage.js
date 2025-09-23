@@ -44,6 +44,9 @@ const TrainDetailPage = () => {
       case 'cleaning':
         setFormData(data || {...train.cleaning, bay: train.bay});
         break;
+      default:
+        setFormData({});
+        break;
     }
   };
 
@@ -68,6 +71,9 @@ const TrainDetailPage = () => {
       case 'cleaning':
         train.cleaning = { ...train.cleaning, ...formData };
         if (formData.bay) train.bay = formData.bay;
+        break;
+      default:
+        console.log('Unknown section:', editingData);
         break;
     }
     
