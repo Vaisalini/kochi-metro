@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import LoadingOverlay from '../components/common/LoadingOverlay';
 import Modal from '../components/common/Modal';
+import TrainInductionDashboard from '../components/dashboard/TrainInductionDashboard';
 import { appData } from '../data/appData';
 
 const AIRecommendationPage = () => {
@@ -229,6 +230,13 @@ const AIRecommendationPage = () => {
               )}
             </div>
           </div>
+
+          {/* Train Induction Dashboard - shown after plan is generated */}
+          {planGenerated && (
+            <div style={{ marginTop: 'var(--space-24)' }}>
+              <TrainInductionDashboard />
+            </div>
+          )}
         </div>
       </main>
 
