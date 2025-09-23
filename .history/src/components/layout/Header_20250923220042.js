@@ -35,6 +35,8 @@ const Header = ({ title, showBackButton, backPath, trainStatus }) => {
   const unreadNotifications = appData.notifications.filter(n => !n.read);
   // Conflict notifications (not marked as handled)
   const conflictFlags = (appData.conflicts || []).filter(c => !c.handled);
+  // Track resolved conflicts for UI feedback
+  const [resolvedConflicts, setResolvedConflicts] = useState([]);
 
   return (
     <header className="app-header">
@@ -94,29 +96,46 @@ const Header = ({ title, showBackButton, backPath, trainStatus }) => {
                   ))}
                   {/* Conflict flags */}
                   {conflictFlags.map(conflict => (
-                    <div key={conflict.id} className="notification-item" style={{background: 'rgba(255,84,89,0.08)', borderLeft: '4px solid #c0152f'}}>
+                    <div key={conflict.id} className="notification-item" style={{background: 'rgba(255,84,89,0.08)', borderLeft: '4px solid #c0152f', marginBottom: 8}}>
                       <div style={{fontWeight: 'bold', color: '#c0152f', marginBottom: 4}}>
-                        Conflict: {conflict.type}
+                        {conflict.trainId} - {conflict.type}
                       </div>
-                      <div style={{marginBottom: 4}}>{conflict.description}</div>
+                      <div style={{fontWeight: 'bold', color: conflict.severity === 'Critical' ? '#c0152f' : '#b36b00', marginBottom: 4}}>
+                        {conflict.severity}: {conflict.description}
+                      </div>
                       <div style={{fontSize: '12px', color: '#b36b00', marginBottom: 4}}>
                         Suggestion: {conflict.suggestion}
                       </div>
                       <div style={{fontSize: '11px', color: 'var(--color-text-secondary)', marginBottom: 8}}>
                         Impact: {conflict.impact}
                       </div>
-                      <button
-                        className="btn-success"
-                        style={{fontSize: 12, padding: '4px 10px', marginTop: 4}}
-                        onClick={() => {
-                          conflict.handled = true;
-                          // Force re-render
-                          setShowNotifications(false);
-                          setTimeout(() => setShowNotifications(true), 10);
-                        }}
-                      >
-                        Handled the conflict? Yes
-                      </button>
+                      {resolvedConflicts.includes(conflict.id) ? (
+                        <div style={{color: '#21808d', fontWeight: 'bold', marginTop: 4}}>Conflict Resolved</div>
+                      ) : (
+                        <div style={{display: 'flex', gap: 8, marginTop: 4}}>
+                          <button
+                            className="btn-primary"
+                            style={{fontSize: 12, padding: '4px 10px'}}
+                            onClick={() => alert('Details for conflict: ' + conflict.description)}
+                          >
+                            View Details
+                          </button>
+                          <button
+                            className="btn-success"
+                            style={{fontSize: 12, padding: '4px 10px'}}
+                            onClick={() => {
+                              conflict.handled = true;
+                              setResolvedConflicts(prev => [...prev, conflict.id]);
+                              // Force re-render
+                              setShowNotifications(false);
+                              setTimeout(() => setShowNotifications(true), 10);
+                              // TODO: Update ranked induction list here if needed
+                            }}
+                          >
+                            Solve Conflict
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </>

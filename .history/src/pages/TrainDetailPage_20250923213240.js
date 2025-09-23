@@ -46,9 +46,6 @@ const TrainDetailPage = () => {
       case 'cleaning':
         setFormData(data || {...train.cleaning, bay: train.bay});
         break;
-      default:
-        setFormData({});
-        break;
     }
   };
 
@@ -572,6 +569,24 @@ const TrainDetailPage = () => {
           <h3>Current Location</h3>
           <div className="bay-location">{train.bay}</div>
           <div>Stabling Bay</div>
+        </div>
+
+        <div className="depot-visualization" style={{margin: '32px 0', padding: '16px', border: '1px dashed #aaa', borderRadius: '8px', background: '#fafbfc'}}>
+          <h3>Depot Visualization</h3>
+          <div style={{display: 'flex', gap: '16px', alignItems: 'center'}}>
+            {[1,2,3,4,5].map(bayNum => (
+              <div key={bayNum} style={{
+                width: 60, height: 60, borderRadius: 8, border: '2px solid #888',
+                background: train.bay === `Bay ${bayNum}` ? '#4caf50' : '#e0e0e0',
+                color: train.bay === `Bay ${bayNum}` ? '#fff' : '#333',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: 18
+              }}>
+                {`Bay ${bayNum}`}
+                {train.bay === `Bay ${bayNum}` && <span style={{marginLeft: 4}}>🚆</span>}
+              </div>
+            ))}
+          </div>
+          <div style={{marginTop: 12, fontSize: 14, color: '#666'}}>Current train highlighted in green.</div>
         </div>
 
         <div className="shunting-cost">

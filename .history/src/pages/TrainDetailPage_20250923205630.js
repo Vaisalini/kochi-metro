@@ -34,60 +34,43 @@ const TrainDetailPage = () => {
       case 'jobcards':
         setFormData(data || { title: '', description: '', priority: 'MEDIUM', status: 'Open' });
         break;
-      case 'branding': {
-        const brandingData = data || {...train.branding};
-        delete brandingData.slaStatus;
-        setFormData(brandingData);
+      case 'branding':
+        setFormData(data || {...train.branding});
         break;
-      }
       case 'mileage':
         setFormData(data || {...train.mileage});
         break;
       case 'cleaning':
         setFormData(data || {...train.cleaning, bay: train.bay});
         break;
-      default:
-        setFormData({});
-        break;
     }
   };
 
   const handleSave = () => {
+    // In a real app, this would make an API call to save the data
     console.log('Saving data:', { section: editingData, data: formData });
-    
+    // Update the local data (in a real app, you'd update your state management)
     if (editingData && typeof editingData === 'object' && editingData.section === 'jobcards') {
+      // Editing or adding a job card
       if (!Array.isArray(train.jobCards.list)) train.jobCards.list = [];
       if (editingData.index !== null && editingData.index !== undefined) {
+        // Edit existing
         train.jobCards.list[editingData.index] = { ...formData };
       } else {
+        // Add new
         train.jobCards.list.push({ ...formData });
       }
     } else {
       switch(editingData) {
         case 'certificates':
+          // Handle certificate updates
           break;
-        case 'branding': {
-          const { attainedHours = 0, requiredHours = 0, ...rest } = formData;
-          let slaStatus = 'Non-Compliant';
-          if (Number(attainedHours) >= Number(requiredHours)) {
-            slaStatus = 'Compliant';
-          } else if (Number(attainedHours) >= 0.8 * Number(requiredHours)) {
-            slaStatus = 'At Risk';
-          }
-          train.branding = { ...train.branding, ...rest, attainedHours, requiredHours, slaStatus };
+        case 'branding':
+          train.branding = { ...train.branding, ...formData };
           break;
-        }
-        case 'mileage': {
-          const currentMileage = parseInt(formData.current) || 0;
-          const targetMileage = parseInt(formData.target) || 0;
-          const calculatedVariance = currentMileage - targetMileage;
-          train.mileage = {
-            ...train.mileage,
-            ...formData,
-            variance: calculatedVariance
-          };
+        case 'mileage':
+          train.mileage = { ...train.mileage, ...formData };
           break;
-        }
         case 'cleaning':
           train.cleaning = { ...train.cleaning, ...formData };
           if (formData.bay) train.bay = formData.bay;
@@ -115,8 +98,8 @@ const TrainDetailPage = () => {
         <div className="edit-form">
           <div className="form-group">
             <label>Certificate Type:</label>
-            <select
-              value={formData.type || ''}
+            <select 
+              value={formData.type || ''} 
               onChange={(e) => setFormData({...formData, type: e.target.value})}
             >
               <option value="">Select Type</option>
@@ -127,16 +110,16 @@ const TrainDetailPage = () => {
           </div>
           <div className="form-group">
             <label>Expiry Date:</label>
-            <input
-              type="date"
-              value={formData.expiry || ''}
+            <input 
+              type="date" 
+              value={formData.expiry || ''} 
               onChange={(e) => setFormData({...formData, expiry: e.target.value})}
             />
           </div>
           <div className="form-group">
             <label>Status:</label>
-            <select
-              value={formData.valid ? 'true' : 'false'}
+            <select 
+              value={formData.valid ? 'true' : 'false'} 
               onChange={(e) => setFormData({...formData, valid: e.target.value === 'true'})}
             >
               <option value="true">Valid</option>
@@ -153,7 +136,7 @@ const TrainDetailPage = () => {
       <div className="certificates-grid">
         {Object.entries(train.fitness).map(([type, cert]) => (
           <div key={type} className="certificate-card">
-            <button
+            <button 
               className="edit-btn"
               onClick={() => handleEdit('certificates', {type, ...cert})}
             >
@@ -166,8 +149,8 @@ const TrainDetailPage = () => {
             <div className="cert-expiry">Expiry: {cert.expiry}</div>
             <div className={`cert-days ${cert.daysLeft <= 3 ? 'critical' : cert.daysLeft <= 7 ? 'warning' : ''}`}>
               {cert.daysLeft < 0 ? `Expired ${Math.abs(cert.daysLeft)} days ago` :
-                cert.daysLeft === 0 ? 'Expires today' :
-                `${cert.daysLeft} days left`}
+               cert.daysLeft === 0 ? 'Expires today' :
+               `${cert.daysLeft} days left`}
             </div>
           </div>
         ))}
@@ -176,61 +159,10 @@ const TrainDetailPage = () => {
   );
 
   const renderJobCardsTab = () => {
+    // Ensure jobCards.list exists
     if (!Array.isArray(train.jobCards.list)) train.jobCards.list = [];
-    if (train.jobCards.list.length === 0 && (train.jobCards.open > 0 || train.jobCards.critical > 0)) {
-      for (let i = 0; i < (train.jobCards.critical || 0); i++) {
-        train.jobCards.list.push({
-          title: 'Critical Maintenance - Brake System',
-          description: 'Requires immediate attention - Safety critical',
-          priority: 'CRITICAL',
-          status: 'Open',
-        });
-      }
-      for (let i = 0; i < ((train.jobCards.open || 0) - (train.jobCards.critical || 0)); i++) {
-        train.jobCards.list.push({
-          title: 'Routine Inspection - Air Conditioning',
-          description: 'Scheduled maintenance check',
-          priority: 'MEDIUM',
-          status: 'Open',
-        });
-      }
-      for (let i = 0; i < (train.jobCards.closed || 0); i++) {
-        train.jobCards.list.push({
-          title: 'Completed Maintenance',
-          description: 'Closed job card',
-          priority: 'LOW',
-          status: 'Closed',
-        });
-      }
-    }
-    const markAsComplete = (index) => {
-      if (!train.jobCards.list[index]) return;
-      train.jobCards.list[index].status = 'Closed';
-      setEditingData(null);
-      setFormData({});
-    };
-    const openCount = train.jobCards.list.filter(j => j.status !== 'Closed').length;
-    const closedCount = train.jobCards.list.filter(j => j.status === 'Closed').length;
-    const criticalCount = train.jobCards.list.filter(j => j.priority === 'CRITICAL' && j.status !== 'Closed').length;
     return (
       <div>
-        <div className="job-cards-summary">
-          <div className="job-count open-jobs">
-            <div>Open Job Cards</div>
-            <div style={{fontSize: 'var(--font-size-3xl)', fontWeight: 'bold', marginTop: '8px'}}>{openCount}</div>
-          </div>
-          <div className="job-count closed-jobs">
-            <div>Closed Job Cards</div>
-            <div style={{fontSize: 'var(--font-size-3xl)', fontWeight: 'bold', marginTop: '8px'}}>{closedCount}</div>
-          </div>
-          <div className="job-count critical-jobs">
-            <div>Critical Job Cards</div>
-            <div style={{fontSize: 'var(--font-size-3xl)', fontWeight: 'bold', marginTop: '8px'}}>{criticalCount}</div>
-          </div>
-        </div>
-
-        <hr style={{margin: '32px 0'}} />
-        <h3>Manage Job Card Details</h3>
         <div className="admin-controls">
           <button className="btn-primary" onClick={() => handleEdit('jobcards')}>
             Add New Job Card
@@ -285,12 +217,12 @@ const TrainDetailPage = () => {
         <div className="job-cards-list">
           {train.jobCards.list.length === 0 ? (
             <div style={{textAlign: 'center', padding: 'var(--space-24)', color: 'var(--color-success)'}}>
-              <h4>✅ No job cards</h4>
-              <p>Add job card details below.</p>
+              <h3>✅ No job cards</h3>
+              <p>All maintenance tasks are completed.</p>
             </div>
           ) : (
             train.jobCards.list.map((job, i) => (
-              <div key={i} className={`job-card-item ${job.priority === 'CRITICAL' ? 'critical' : job.priority === 'MEDIUM' ? 'medium' : 'low'} ${job.status === 'Closed' ? 'closed' : ''}`}>
+              <div key={i} className={`job-card-item ${job.priority === 'CRITICAL' ? 'critical' : job.priority === 'MEDIUM' ? 'medium' : 'low'}`}>
                 <div className="job-info">
                   <h4>{job.title}</h4>
                   <p>{job.description}</p>
@@ -303,11 +235,6 @@ const TrainDetailPage = () => {
                   setEditingData(null);
                   setFormData({});
                 }}>🗑️</button>
-                {job.status !== 'Closed' && (
-                  <button className="complete-btn" onClick={() => markAsComplete(i)}>
-                    Mark as Complete
-                  </button>
-                )}
               </div>
             ))
           )}
@@ -315,7 +242,6 @@ const TrainDetailPage = () => {
       </div>
     );
   };
-
 
   const renderBrandingTab = () => (
     <div>
@@ -329,50 +255,47 @@ const TrainDetailPage = () => {
         <div className="edit-form">
           <div className="form-group">
             <label>Wrap ID:</label>
-            <input
-              type="text"
-              value={formData.wrapId || ''}
+            <input 
+              type="text" 
+              value={formData.wrapId || ''} 
               onChange={(e) => setFormData({...formData, wrapId: e.target.value})}
             />
           </div>
           <div className="form-group">
             <label>Advertiser:</label>
-            <input
-              type="text"
-              value={formData.advertiser || ''}
+            <input 
+              type="text" 
+              value={formData.advertiser || ''} 
               onChange={(e) => setFormData({...formData, advertiser: e.target.value})}
             />
           </div>
           <div className="form-group">
             <label>Required Hours/Day:</label>
-            <input
-              type="number"
-              value={formData.requiredHours || ''}
+            <input 
+              type="number" 
+              value={formData.requiredHours || ''} 
               onChange={(e) => setFormData({...formData, requiredHours: parseInt(e.target.value) || 0})}
             />
           </div>
           <div className="form-group">
             <label>Attained Hours:</label>
-            <input
-              type="number"
-              value={formData.attainedHours || ''}
+            <input 
+              type="number" 
+              value={formData.attainedHours || ''} 
               onChange={(e) => setFormData({...formData, attainedHours: parseInt(e.target.value) || 0})}
             />
           </div>
           <div className="form-group">
             <label>SLA Status:</label>
-            <input
-              type="text"
-              value={(() => {
-                const attained = Number(formData.attainedHours) || 0;
-                const required = Number(formData.requiredHours) || 0;
-                if (attained >= required) return 'Compliant';
-                if (attained >= 0.8 * required) return 'At Risk';
-                return 'Non-Compliant';
-              })()}
-              readOnly
-              style={{ background: '#f5f5f5', color: '#333', fontWeight: 'bold' }}
-            />
+            <select 
+              value={formData.slaStatus || ''} 
+              onChange={(e) => setFormData({...formData, slaStatus: e.target.value})}
+            >
+              <option value="">Select Status</option>
+              <option value="Compliant">Compliant</option>
+              <option value="Non-Compliant">Non-Compliant</option>
+              <option value="At Risk">At Risk</option>
+            </select>
           </div>
           <div className="form-actions">
             <button className="btn-success" onClick={handleSave}>Save</button>
@@ -399,8 +322,8 @@ const TrainDetailPage = () => {
           <h3>Exposure Progress</h3>
           <div>Attained: {train.branding.attainedHours}h / Required: {train.branding.requiredHours}h</div>
           <div className="progress-bar">
-            <div
-              className="progress-fill"
+            <div 
+              className="progress-fill" 
               style={{
                 width: `${Math.min(100, (train.branding.attainedHours / train.branding.requiredHours) * 100)}%`
               }}
@@ -430,34 +353,34 @@ const TrainDetailPage = () => {
         <div className="edit-form">
           <div className="form-group">
             <label>Current Mileage (km):</label>
-            <input
-              type="number"
-              value={formData.current || ''}
+            <input 
+              type="number" 
+              value={formData.current || ''} 
               onChange={(e) => setFormData({...formData, current: parseInt(e.target.value) || 0})}
             />
           </div>
           <div className="form-group">
             <label>Last Overhaul Mileage (km):</label>
-            <input
-              type="number"
-              value={formData.lastOverhaul || ''}
+            <input 
+              type="number" 
+              value={formData.lastOverhaul || ''} 
               onChange={(e) => setFormData({...formData, lastOverhaul: parseInt(e.target.value) || 0})}
             />
           </div>
           <div className="form-group">
             <label>Target Mileage (km):</label>
-            <input
-              type="number"
-              value={formData.target || ''}
+            <input 
+              type="number" 
+              value={formData.target || ''} 
               onChange={(e) => setFormData({...formData, target: parseInt(e.target.value) || 0})}
             />
           </div>
           <div className="form-group">
             <label>Variance (km):</label>
-            <input
-              type="number"
-              value={(formData.current || 0) - (formData.target || 0)}
-              readOnly
+            <input 
+              type="number" 
+              value={formData.variance || ''} 
+              onChange={(e) => setFormData({...formData, variance: parseInt(e.target.value) || 0})}
             />
           </div>
           <div className="form-actions">
@@ -503,8 +426,8 @@ const TrainDetailPage = () => {
         <div className="edit-form">
           <div className="form-group">
             <label>Cleaning Status:</label>
-            <select
-              value={formData.status || ''}
+            <select 
+              value={formData.status || ''} 
               onChange={(e) => setFormData({...formData, status: e.target.value})}
             >
               <option value="">Select Status</option>
@@ -515,33 +438,33 @@ const TrainDetailPage = () => {
           </div>
           <div className="form-group">
             <label>Next Scheduled:</label>
-            <input
-              type="datetime-local"
-              value={formData.nextScheduled || ''}
+            <input 
+              type="datetime-local" 
+              value={formData.nextScheduled || ''} 
               onChange={(e) => setFormData({...formData, nextScheduled: e.target.value})}
             />
           </div>
           <div className="form-group">
             <label>Assigned Slot:</label>
-            <input
-              type="text"
-              value={formData.assignedSlot || ''}
+            <input 
+              type="text" 
+              value={formData.assignedSlot || ''} 
               onChange={(e) => setFormData({...formData, assignedSlot: e.target.value})}
             />
           </div>
           <div className="form-group">
             <label>Crew:</label>
-            <input
-              type="text"
-              value={formData.crew || ''}
+            <input 
+              type="text" 
+              value={formData.crew || ''} 
               onChange={(e) => setFormData({...formData, crew: e.target.value})}
             />
           </div>
           <div className="form-group">
             <label>Current Bay:</label>
-            <input
-              type="text"
-              value={formData.bay || ''}
+            <input 
+              type="text" 
+              value={formData.bay || ''} 
               onChange={(e) => setFormData({...formData, bay: e.target.value})}
             />
           </div>
@@ -592,7 +515,7 @@ const TrainDetailPage = () => {
 
   return (
     <div className="page active">
-      <Header
+      <Header 
         title={`Train ${train.id} - Detail View`}
         showBackButton
         backPath="/dashboard"

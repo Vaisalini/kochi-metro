@@ -46,9 +46,6 @@ const TrainDetailPage = () => {
       case 'cleaning':
         setFormData(data || {...train.cleaning, bay: train.bay});
         break;
-      default:
-        setFormData({});
-        break;
     }
   };
 
