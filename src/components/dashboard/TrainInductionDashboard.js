@@ -4,10 +4,13 @@ import { Check, X, AlertCircle, Train, Factory, IndianRupee } from 'lucide-react
 import { appData } from '../../data/appData';
 import '../../styles/TrainInductionDashboard.css';
 
-const TrainInductionDashboard = () => {
+const TrainInductionDashboard = ({ compactMode = false, scenarioData = null, title = null }) => {
+  // Use scenarioData if provided, otherwise use appData
+  const dataSource = scenarioData || appData;
+  
   // Transform existing appData to match dashboard requirements
   const trains = useMemo(() => {
-    return appData.trainsets.map(train => {
+    return dataSource.trainsets.map(train => {
       // Calculate scoring based on existing data
       let score = 0;
       let eligible = true;
@@ -58,10 +61,10 @@ const TrainInductionDashboard = () => {
         status: train.status
       };
     });
-  }, []);
+  }, [dataSource]);
 
-  const [depotBays] = useState(appData.depot.bays);
-  const [shuntingData] = useState(appData.shuntingOptimization);
+  const [depotBays] = useState(dataSource.depot.bays);
+  const [shuntingData] = useState(dataSource.shuntingOptimization);
 
   // Calculate metrics
   const eligibleTrains = trains.filter(t => t.eligible);
@@ -98,7 +101,7 @@ const TrainInductionDashboard = () => {
     return (
       <svg viewBox="0 0 400 400" className="depot-svg">
         {/* Draw connections */}
-        {appData.depot.connections.map(([from, to], i) => {
+        {dataSource.depot.connections.map(([from, to], i) => {
           const fromBay = depotBays[from];
           const toBay = depotBays[to];
           if (fromBay && toBay) {
@@ -251,9 +254,11 @@ const TrainInductionDashboard = () => {
       <div className="dashboard-header">
         <h2 className="dashboard-title">
           <Train size={32} />
-          Train Induction Planner
+          {title || 'Train Induction Planner'}
         </h2>
-        <p className="dashboard-subtitle">Digital Twin Dashboard for Daily Train Induction Optimization</p>
+        <p className="dashboard-subtitle">
+          {scenarioData ? 'What-If Scenario Analysis Dashboard' : 'Digital Twin Dashboard for Daily Train Induction Optimization'}
+        </p>
       </div>
 
       <div className="dashboard-grid">
@@ -311,57 +316,59 @@ const TrainInductionDashboard = () => {
         </div>
 
         {/* Scoring Breakdown */}
-        <div className="dashboard-card">
-          <h3 className="card-title">
-            📊 Scoring Breakdown
-          </h3>
-          
-          <div className="chart-section">
-            <h4 className="chart-title">Scoring Comparison - Top Trains</h4>
-            <div className="chart-container">
-              <ResponsiveContainer width="100%" height={300}>
-                <RadarChart data={radarData}>
-                  <PolarGrid stroke="var(--color-gray-400)" />
-                  <PolarAngleAxis dataKey="category" tick={{ fill: 'var(--color-gray-300)', fontSize: 12 }} />
-                  <PolarRadiusAxis domain={[0, 30]} tick={{ fill: 'var(--color-gray-400)' }} />
-                  {topTrains.map((train, i) => (
-                    <Radar
-                      key={train.id}
-                      name={train.id}
-                      dataKey={`train${i}`}
-                      stroke={i === 0 ? 'var(--color-teal-300)' : i === 1 ? 'var(--color-teal-400)' : 'var(--color-orange-400)'}
-                      fill={i === 0 ? 'var(--color-teal-300)' : i === 1 ? 'var(--color-teal-400)' : 'var(--color-orange-400)'}
-                      fillOpacity={0.3}
-                    />
-                  ))}
-                  <Legend wrapperStyle={{ color: 'var(--color-gray-300)' }} />
-                </RadarChart>
-              </ResponsiveContainer>
+        {!compactMode && (
+          <div className="dashboard-card">
+            <h3 className="card-title">
+              📊 Scoring Breakdown
+            </h3>
+            
+            <div className="chart-section">
+              <h4 className="chart-title">Scoring Comparison - Top Trains</h4>
+              <div className="chart-container">
+                <ResponsiveContainer width="100%" height={300}>
+                  <RadarChart data={radarData}>
+                    <PolarGrid stroke="var(--color-gray-400)" />
+                    <PolarAngleAxis dataKey="category" tick={{ fill: 'var(--color-gray-300)', fontSize: 12 }} />
+                    <PolarRadiusAxis domain={[0, 30]} tick={{ fill: 'var(--color-gray-400)' }} />
+                    {topTrains.map((train, i) => (
+                      <Radar
+                        key={train.id}
+                        name={train.id}
+                        dataKey={`train${i}`}
+                        stroke={i === 0 ? 'var(--color-teal-300)' : i === 1 ? 'var(--color-teal-400)' : 'var(--color-orange-400)'}
+                        fill={i === 0 ? 'var(--color-teal-300)' : i === 1 ? 'var(--color-teal-400)' : 'var(--color-orange-400)'}
+                        fillOpacity={0.3}
+                      />
+                    ))}
+                    <Legend wrapperStyle={{ color: 'var(--color-gray-300)' }} />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
-          </div>
 
-          <div className="chart-section">
-            <h4 className="chart-title">Total Score Distribution</h4>
-            <div className="chart-container">
-              <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={scoreDistributionData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-gray-400)" opacity={0.2} />
-                  <XAxis dataKey="name" tick={{ fill: 'var(--color-gray-300)', fontSize: 12 }} />
-                  <YAxis tick={{ fill: 'var(--color-gray-300)', fontSize: 12 }} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'var(--color-charcoal-700)', 
-                      border: '1px solid var(--color-gray-400)',
-                      borderRadius: '8px'
-                    }}
-                    labelStyle={{ color: 'var(--color-gray-300)' }}
-                  />
-                  <Bar dataKey="score" fill="var(--color-teal-400)" radius={[8, 8, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+            <div className="chart-section">
+              <h4 className="chart-title">Total Score Distribution</h4>
+              <div className="chart-container">
+                <ResponsiveContainer width="100%" height={250}>
+                  <BarChart data={scoreDistributionData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--color-gray-400)" opacity={0.2} />
+                    <XAxis dataKey="name" tick={{ fill: 'var(--color-gray-300)', fontSize: 12 }} />
+                    <YAxis tick={{ fill: 'var(--color-gray-300)', fontSize: 12 }} />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'var(--color-charcoal-700)', 
+                        border: '1px solid var(--color-gray-400)',
+                        borderRadius: '8px'
+                      }}
+                      labelStyle={{ color: 'var(--color-gray-300)' }}
+                    />
+                    <Bar dataKey="score" fill="var(--color-teal-400)" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       <div className="dashboard-grid">
@@ -435,53 +442,55 @@ const TrainInductionDashboard = () => {
         </div>
 
         {/* System Status */}
-        <div className="dashboard-card">
-          <h3 className="card-title">
-            <AlertCircle size={20} />
-            System Status & Performance
-          </h3>
-          
-          <div className="status-section">
-            <h4 className="section-title">Validation Statistics</h4>
-            <div className="validation-alerts">
-              <div className="alert alert-critical">
-                ⚠️ <strong>Fitness Certificate</strong>: {trains.filter(t => !t.eligible).length} violations detected
-              </div>
-              <div className="alert alert-info">
-                ℹ️ <strong>Warnings</strong>: {appData.conflicts.filter(c => c.severity === 'High').length} trains requiring attention
+        {!compactMode && (
+          <div className="dashboard-card">
+            <h3 className="card-title">
+              <AlertCircle size={20} />
+              System Status & Performance
+            </h3>
+            
+            <div className="status-section">
+              <h4 className="section-title">Validation Statistics</h4>
+              <div className="validation-alerts">
+                <div className="alert alert-critical">
+                  ⚠️ <strong>Fitness Certificate</strong>: {trains.filter(t => !t.eligible).length} violations detected
+                </div>
+                <div className="alert alert-info">
+                  ℹ️ <strong>Warnings</strong>: {dataSource.conflicts.filter(c => c.severity === 'High').length} trains requiring attention
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="status-section">
-            <h4 className="section-title">Train Status Overview</h4>
-            <div className="table-container">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Train ID</th>
-                    <th>Score</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {trains.map((train) => (
-                    <tr key={train.id}>
-                      <td>{train.id}</td>
-                      <td>{train.score.toFixed(1)}</td>
-                      <td>
-                        <span className={`status-badge ${train.eligible ? 'status-eligible' : 'status-ineligible'}`}>
-                          {train.eligible ? <Check size={14} /> : <X size={14} />}
-                          {train.eligible ? 'Eligible' : 'Ineligible'}
-                        </span>
-                      </td>
+            <div className="status-section">
+              <h4 className="section-title">Train Status Overview</h4>
+              <div className="table-container">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Train ID</th>
+                      <th>Score</th>
+                      <th>Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {trains.map((train) => (
+                      <tr key={train.id}>
+                        <td>{train.id}</td>
+                        <td>{train.score.toFixed(1)}</td>
+                        <td>
+                          <span className={`status-badge ${train.eligible ? 'status-eligible' : 'status-ineligible'}`}>
+                            {train.eligible ? <Check size={14} /> : <X size={14} />}
+                            {train.eligible ? 'Eligible' : 'Ineligible'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
