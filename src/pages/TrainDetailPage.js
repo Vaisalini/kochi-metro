@@ -495,7 +495,7 @@ const TrainDetailPage = () => {
     <div>
       <div className="admin-controls">
         <button className="btn-primary" onClick={() => handleEdit('cleaning')}>
-          Update Cleaning & Stabling
+          Update Cleaning
         </button>
       </div>
 
@@ -574,10 +574,7 @@ const TrainDetailPage = () => {
           <div>Stabling Bay</div>
         </div>
 
-        <div className="shunting-cost">
-          <h3>Shunting Details</h3>
-          <div>Cost: ₹500 | Time: 15 min</div>
-        </div>
+        
       </div>
     </div>
   );
@@ -587,7 +584,7 @@ const TrainDetailPage = () => {
     { id: 'jobcards', label: 'Job Cards', content: renderJobCardsTab },
     { id: 'branding', label: 'Branding', content: renderBrandingTab },
     { id: 'mileage', label: 'Mileage', content: renderMileageTab },
-    { id: 'cleaning', label: 'Cleaning & Stabling', content: renderCleaningStablingTab }
+    { id: 'cleaning', label: 'Cleaning', content: renderCleaningStablingTab }
   ];
 
   return (

@@ -193,7 +193,7 @@ const TrainDetailPage = () => {
     { id: 'jobcards', label: 'Job Cards', content: renderJobCardsTab },
     { id: 'branding', label: 'Branding', content: renderBrandingTab },
     { id: 'mileage', label: 'Mileage', content: renderMileageTab },
-    { id: 'cleaning', label: 'Cleaning & Stabling', content: renderCleaningStablingTab }
+    { id: 'cleaning', label: 'Cleaning', content: renderCleaningStablingTab }
   ];
 
   return (
