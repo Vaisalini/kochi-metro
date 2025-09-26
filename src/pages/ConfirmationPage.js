@@ -1,32 +1,80 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import Header from '../components/layout/Header';
-import { appData } from '../data/appData';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import Header from "../components/layout/Header";
+import { appData } from "../data/appData";
 
 const ConfirmationPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [approvalNotes, setApprovalNotes] = useState('');
+  const [approvalNotes, setApprovalNotes] = useState("");
   const [isApproved, setIsApproved] = useState(false);
 
-  const sortedTrains = [...appData.trainsets].sort((a, b) => a.aiRank - b.aiRank);
+  // Sort trains by status first (Revenue Service first), then by aiRank
+  const sortedTrains = [...appData.trainsets].sort((a, b) => {
+    // First prioritize Revenue Service trains
+    if (a.status === "Revenue Service" && b.status !== "Revenue Service") {
+      return -1;
+    }
+    if (a.status !== "Revenue Service" && b.status === "Revenue Service") {
+      return 1;
+    }
+
+    // Then prioritize Standby trains
+    if (
+      a.status === "Standby" &&
+      b.status !== "Standby" &&
+      b.status !== "Revenue Service"
+    ) {
+      return -1;
+    }
+    if (
+      a.status !== "Standby" &&
+      a.status !== "Revenue Service" &&
+      b.status === "Standby"
+    ) {
+      return 1;
+    }
+
+    // For same status trains, sort by aiRank if available
+    if (a.aiRank !== null && b.aiRank !== null) {
+      return a.aiRank - b.aiRank;
+    }
+    // If a has aiRank but b doesn't, a comes first
+    if (a.aiRank !== null && b.aiRank === null) {
+      return -1;
+    }
+    // If b has aiRank but a doesn't, b comes first
+    if (a.aiRank === null && b.aiRank !== null) {
+      return 1;
+    }
+    // If both are null, sort by ID
+    return a.id.localeCompare(b.id);
+  });
   const totalTrains = sortedTrains.length;
-  const revenueTrains = sortedTrains.filter(t => t.status === 'Revenue Service').length;
-  const maintenanceTrains = sortedTrains.filter(t => t.status === 'IBL Maintenance').length;
-  const standbyTrains = sortedTrains.filter(t => t.status === 'Standby').length;
+  const revenueTrains = sortedTrains.filter(
+    (t) => t.status === "Revenue Service"
+  ).length;
+  const maintenanceTrains = sortedTrains.filter(
+    (t) => t.status === "IBL Maintenance"
+  ).length;
+  const standbyTrains = sortedTrains.filter(
+    (t) => t.status === "Standby"
+  ).length;
 
   const handleApprove = () => {
     setIsApproved(true);
     setTimeout(() => {
-      alert('Plan approved successfully! Notifications sent to all stakeholders.');
-      navigate('/dashboard');
+      alert(
+        "Plan approved successfully! Notifications sent to all stakeholders."
+      );
+      navigate("/dashboard");
     }, 2000);
   };
 
   const handleReject = () => {
-    if (window.confirm('Are you sure you want to reject this plan?')) {
-      navigate('/ai-recommendation');
+    if (window.confirm("Are you sure you want to reject this plan?")) {
+      navigate("/ai-recommendation");
     }
   };
 
@@ -40,7 +88,7 @@ const ConfirmationPage = () => {
 
   return (
     <div className="page active">
-      <Header 
+      <Header
         title="Final Plan Confirmation"
         showBackButton
         backPath="/ai-recommendation"
@@ -76,12 +124,60 @@ const ConfirmationPage = () => {
                 {sortedTrains.map((train, index) => (
                   <div key={train.id} className="final-plan-item">
                     <div>
-                      <strong>#{train.aiRank} - {train.id}</strong>
-                      <div style={{fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)'}}>
-                        {train.status} | Bay {train.bay} | Confidence: {(train.confidence * 100).toFixed(0)}%
+                      <strong>
+                        #{train.aiRank} - {train.id}
+                      </strong>
+                      <div
+                        style={{
+                          fontSize: "var(--font-size-sm)",
+                          color: "var(--color-text-secondary)",
+                        }}
+                      >
+                        {train.status} | Bay {train.bay} | Confidence:{" "}
+                        {(train.confidence * 100).toFixed(0)}%
                       </div>
+                      {train.id === "KM-005" ? (
+                        <div
+                          style={{
+                            fontSize: "var(--font-size-sm)",
+                            color: "var(--color-red-500)",
+                          }}
+                        >
+                          All fitness certificates invalid - Requires
+                          recertification
+                        </div>
+                      ) : (
+                        train.status === "IBL Maintenance" &&
+                        (!train.fitness.rolling.valid ||
+                          !train.fitness.signal.valid ||
+                          !train.fitness.telecom.valid) && (
+                          <div
+                            style={{
+                              fontSize: "var(--font-size-sm)",
+                              color: "var(--color-red-500)",
+                            }}
+                          >
+                            Certificate expired - Requires recertification
+                          </div>
+                        )
+                      )}
+                      {train.status === "Standby" && (
+                        <div
+                          style={{
+                            fontSize: "var(--font-size-sm)",
+                            color: "var(--color-orange-500)",
+                          }}
+                        >
+                          Mileage balance required:{" "}
+                          {Math.abs(train.mileage.variance)} km
+                        </div>
+                      )}
                     </div>
-                    <div className={`status-${train.status.toLowerCase().replace(' ', '-')}`}>
+                    <div
+                      className={`status-${train.status
+                        .toLowerCase()
+                        .replace(" ", "-")}`}
+                    >
                       {train.status}
                     </div>
                   </div>
@@ -97,7 +193,7 @@ const ConfirmationPage = () => {
               <h3>Plan Approval</h3>
 
               <div className="approval-timestamp">
-                Generated: {new Date().toLocaleString('en-IN')}
+                Generated: {new Date().toLocaleString("en-IN")}
               </div>
 
               <div className="form-group">
@@ -116,54 +212,56 @@ const ConfirmationPage = () => {
                 <input
                   type="text"
                   className="form-control"
-                  value={user?.name || ''}
+                  value={user?.name || ""}
                   readOnly
                 />
               </div>
 
               {!isApproved ? (
-                <div style={{display: 'flex', gap: 'var(--space-12)'}}>
-                  <button 
-                    className="btn btn--primary"
-                    onClick={handleApprove}
-                  >
+                <div style={{ display: "flex", gap: "var(--space-12)" }}>
+                  <button className="btn btn--primary" onClick={handleApprove}>
                     ✓ Approve Plan
                   </button>
-                  <button 
-                    className="btn btn--outline"
-                    onClick={handleReject}
-                  >
+                  <button className="btn btn--outline" onClick={handleReject}>
                     ✗ Reject & Modify
                   </button>
                 </div>
               ) : (
-                <div style={{textAlign: 'center', padding: 'var(--space-16)'}}>
-                  <div style={{fontSize: 'var(--font-size-xl)', color: 'var(--color-success)', marginBottom: 'var(--space-8)'}}>
+                <div
+                  style={{ textAlign: "center", padding: "var(--space-16)" }}
+                >
+                  <div
+                    style={{
+                      fontSize: "var(--font-size-xl)",
+                      color: "var(--color-success)",
+                      marginBottom: "var(--space-8)",
+                    }}
+                  >
                     ✅ Plan Approved Successfully!
                   </div>
-                  <div style={{color: 'var(--color-text-secondary)'}}>
+                  <div style={{ color: "var(--color-text-secondary)" }}>
                     Notifications sent to all stakeholders
                   </div>
                 </div>
               )}
 
-              <hr style={{margin: 'var(--space-20) 0'}} />
+              <hr style={{ margin: "var(--space-20) 0" }} />
 
               <h4>Export Options</h4>
               <div className="export-options">
-                <button 
+                <button
                   className="btn btn--secondary btn--sm"
-                  onClick={() => handleExport('PDF')}
+                  onClick={() => handleExport("PDF")}
                 >
                   📄 Export PDF
                 </button>
-                <button 
+                <button
                   className="btn btn--secondary btn--sm"
-                  onClick={() => handleExport('Excel')}
+                  onClick={() => handleExport("Excel")}
                 >
                   📊 Export Excel
                 </button>
-                <button 
+                <button
                   className="btn btn--outline btn--sm"
                   onClick={handlePrint}
                 >
